@@ -4,7 +4,6 @@
     <title>Text to Table Converter</title>
     <style>
         /* CSS styles */
-
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
@@ -66,11 +65,20 @@
         th {
             background-color: #4287f5;
             color: #fff;
+            cursor: pointer;
         }
 
         th:last-child,
         td:last-child {
             border-right: none;
+        }
+
+        .sorted-asc::after {
+            content: " ▲";
+        }
+
+        .sorted-desc::after {
+            content: " ▼";
         }
 
         @keyframes fadeIn {
@@ -144,13 +152,29 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        .search-box {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .search-box input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Text to Table Converter</h1>
-        <textarea id="textInput" placeholder="Enter text data here..."></textarea>
+        <textarea id="textInput" placeholder="Enter your text data here..."></textarea>
         <button onclick="convertTextToTable()">Convert</button>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search...">
+        </div>
         <table id="tableOutput"></table>
         <div class="credit">
             <p>Word of Lio, Little Inventive One</p>
@@ -171,6 +195,10 @@
                     <li>Visually appealing blue color theme.</li>
                     <li>Added "I'm Feeling Lucky" button to generate a random example for quick testing.</li>
                     <li>Added tutorial button for a brief tutorial on how to use Text to Table Converter.</li>
+                    <li>Sorting functionality for column headers.</li>
+                    <li>Automatic duplicate header detection and positioning.</li>
+                    <li>Automatic column width adjustment based on content length.</li>
+                    <li>Automatic filtering or search functionality to easily find specific data.</li>
                 </ul>
             </div>
         </div>
@@ -183,6 +211,9 @@
     </div>
 
     <script>
+        var tableData = [];
+        var ascending = false;
+
         function convertTextToTable() {
             var textInput = document.getElementById("textInput").value;
             var rows = textInput.split('\n');
@@ -194,80 +225,159 @@
             var headers = [];
             for (var i = 0; i < rows.length; i++) {
                 var cells = rows[i].split(',');
+
                 for (var j = 0; j < cells.length; j++) {
                     var cellData = cells[j].split(':');
-                    if (headers.indexOf(cellData[0]) === -1) {
+                    var headerIndex = headers.findIndex(header => header === cellData[0]);
+
+                    if (headerIndex === -1) {
                         headers.push(cellData[0]);
                     }
                 }
             }
 
-            // Add column headers to the table
-            var headerRow = table.insertRow(0);
+            // Create table header
+            var headerRow = table.insertRow();
             for (var k = 0; k < headers.length; k++) {
-                var headerCell = headerRow.insertCell(k);
+                var headerCell = headerRow.insertCell();
                 headerCell.innerHTML = headers[k];
-                headerCell.style.fontWeight = "bold";
-                headerCell.style.backgroundColor = "#4287f5";
-                headerCell.style.color = "#fff";
+                headerCell.setAttribute("onclick", "sortTable(" + k + ")");
             }
 
-            // Add data rows to the table
+            // Create table body
             for (var l = 0; l < rows.length; l++) {
-                var rowData = rows[l].split(',');
-                var dataRow = table.insertRow(l + 1);
+                var row = table.insertRow();
+                var cells = rows[l].split(',');
 
                 for (var m = 0; m < headers.length; m++) {
-                    var cell = dataRow.insertCell(m);
-                    var cellData = "";
-                    for (var n = 0; n < rowData.length; n++) {
-                        var cellValue = rowData[n].split(':');
-                        if (cellValue[0] === headers[m]) {
-                            cellData = cellValue[1];
-                            break;
-                        }
+                    var cell = row.insertCell();
+                    var cellData = cells.find(cell => cell.startsWith(headers[m] + ':'));
+
+                    if (cellData) {
+                        var value = cellData.split(':')[1];
+                        cell.innerHTML = value;
                     }
-                    cell.innerHTML = cellData;
                 }
             }
 
-            animateTable();
+            // Adjust column widths based on content length
+            var maxWidths = [];
+            for (var n = 0; n < headers.length; n++) {
+                maxWidths.push(headers[n].length);
+            }
+
+            for (var o = 0; o < table.rows.length; o++) {
+                for (var p = 0; p < table.rows[o].cells.length; p++) {
+                    var content = table.rows[o].cells[p].innerHTML;
+                    if (content.length > maxWidths[p]) {
+                        maxWidths[p] = content.length;
+                    }
+                }
+            }
+
+            for (var q = 0; q < table.rows.length; q++) {
+                for (var r = 0; r < table.rows[q].cells.length; r++) {
+                    table.rows[q].cells[r].style.width = (maxWidths[r] * 10) + "px";
+                }
+            }
+
+            // Add search functionality
+            var searchInput = document.getElementById("searchInput");
+            searchInput.addEventListener("input", function () {
+                var searchText = this.value.toLowerCase();
+
+                for (var s = 1; s < table.rows.length; s++) {
+                    var rowVisible = false;
+
+                    for (var t = 0; t < table.rows[s].cells.length; t++) {
+                        var cellText = table.rows[s].cells[t].innerHTML.toLowerCase();
+
+                        if (cellText.includes(searchText)) {
+                            rowVisible = true;
+                            break;
+                        }
+                    }
+
+                    if (rowVisible) {
+                        table.rows[s].style.display = "";
+                    } else {
+                        table.rows[s].style.display = "none";
+                    }
+                }
+            });
+
+            // Display the table with animations
+            table.classList.add("fade-in");
+            table.classList.add("slide-in");
         }
 
-        function animateTable() {
+        function sortTable(columnIndex) {
             var table = document.getElementById("tableOutput");
-            table.classList.add("fade-in");
+            var rows = table.rows;
+            var switching = true;
+            var shouldSwitch = false;
 
-            var rows = table.getElementsByTagName("tr");
-            var delay = 0;
+            while (switching) {
+                switching = false;
 
-            for (var i = 0; i < rows.length; i++) {
-                rows[i].style.animationDelay = delay + "s";
-                rows[i].classList.add("slide-in");
-                delay += 0.1;
+                for (var i = 1; i < (rows.length - 1); i++) {
+                    var x = rows[i].getElementsByTagName("TD")[columnIndex];
+                    var y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+
+                    if (ascending) {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    shouldSwitch = false;
+                }
             }
+
+            // Update sorting indicator
+            var headerCells = table.getElementsByTagName("TH");
+            for (var j = 0; j < headerCells.length; j++) {
+                headerCells[j].classList.remove("sorted-asc");
+                headerCells[j].classList.remove("sorted-desc");
+            }
+
+            var clickedHeader = headerCells[columnIndex];
+            if (ascending) {
+                clickedHeader.classList.add("sorted-asc");
+            } else {
+                clickedHeader.classList.add("sorted-desc");
+            }
+
+            ascending = !ascending;
         }
 
         function toggleUpdateDetails() {
             var updateDetails = document.getElementById("updateDetails");
-            var button = document.querySelector(".update-notice button");
-
             if (updateDetails.style.display === "none") {
                 updateDetails.style.display = "block";
-                button.textContent = "Hide Details";
             } else {
                 updateDetails.style.display = "none";
-                button.textContent = "Show Details";
             }
         }
 
         function generateRandomExample() {
-            var randomText = "Name:Lio,Likes:Coding,Skills:JavaScript\nName:John,Likes:Reading,Skills:Writing\nName:Sarah,Likes:Drawing,Skills:Designing";
-            document.getElementById("textInput").value = randomText;
+            var randomData = "Name:John,Age:25,Location:New York\nName:Sarah,Age:30,Location:London\nName:Michael,Age:35,Location:Paris";
+            document.getElementById("textInput").value = randomData;
+            convertTextToTable();
         }
 
         function showTutorial() {
-            alert("This is a simple tutorial on how to use Text to Table Converter:\n\n1. Enter your text data into the input area. Each row should represent a separate entry, and the columns should be separated by commas.\n\n2. Click the 'Convert' button to generate the table.\n\n3. The converted table will be displayed below with the column headers and corresponding data.\n\nEnjoy using Text to Table Converter!");
+            alert("Here is a brief tutorial on how to use Text to Table Converter:\n\n1. Enter your text data into the input box. Each row of data should be on a new line, and columns should be separated by commas.\n\n2. Click the 'Convert' button to generate a table based on the entered text data.\n\n3. You can click on the column headers to sort the table in ascending or descending order based on that column.\n\n4. Use the search box to filter the table and find specific data.\n\nEnjoy using Text to Table Converter!");
         }
     </script>
 </body>
