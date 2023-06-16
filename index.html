@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text to Table Converter</title>
+    <style>
+        /* CSS styles */
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4287f5;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        button {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 20px;
+            background-color: #4287f5;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #366bb5;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4287f5;
+            color: #fff;
+        }
+
+        th:last-child,
+        td:last-child {
+            border-right: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease;
+        }
+
+        .credit {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .credit a {
+            color: #4287f5;
+            text-decoration: none;
+        }
+
+        .update-notice {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .update-notice p {
+            font-size: 14px;
+            color: #4287f5;
+            margin-bottom: 10px;
+        }
+
+        .update-details {
+            margin-top: 10px;
+        }
+
+        .update-details h3 {
+            color: #4287f5;
+            margin-bottom: 5px;
+        }
+
+        .update-details ul {
+            margin-left: 20px;
+        }
+
+        .feeling-lucky {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .tutorial {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text to Table Converter</h1>
+        <textarea id="textInput" placeholder="Enter text data here..."></textarea>
+        <button onclick="convertTextToTable()">Convert</button>
+        <table id="tableOutput"></table>
+        <div class="credit">
+            <p>Word of Lio, Little Inventive One</p>
+        </div>
+        <div class="update-notice">
+            <p>Update Notice: TTD 1.0 Released!</p>
+            <button onclick="toggleUpdateDetails()">Show Details</button>
+            <div id="updateDetails" class="update-details" style="display: none;">
+                <h3>What is TTD?</h3>
+                <p>TTD (Text to Table) is a web application that allows you to convert text data into an interactive table format. It simplifies the process of converting textual information into a structured table, making it easier to analyze and manipulate data.</p>
+                <h3>Why TTD?</h3>
+                <p>TTD is designed to save time and effort by automating the conversion process. Instead of manually formatting text data into a table, TTD streamlines the task, reducing errors and enhancing productivity.</p>
+                <h3>Features and Updates in TTD 1.0:</h3>
+                <ul>
+                    <li>Support for customizable column separation using the pattern "A:B".</li>
+                    <li>Smooth fade-in and slide-in animations for the generated table.</li>
+                    <li>Enhanced border styling for each cell.</li>
+                    <li>Visually appealing blue color theme.</li>
+                    <li>Added "I'm Feeling Lucky" button to generate a random example for quick testing.</li>
+                    <li>Added tutorial button for a brief tutorial on how to use Text to Table Converter.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="feeling-lucky">
+            <button onclick="generateRandomExample()">I'm Feeling Lucky</button>
+        </div>
+        <div class="tutorial">
+            <button onclick="showTutorial()">Tutorial</button>
+        </div>
+    </div>
+
+    <script>
+        function convertTextToTable() {
+            var textInput = document.getElementById("textInput").value;
+            var rows = textInput.split('\n');
+
+            var table = document.getElementById("tableOutput");
+            table.innerHTML = "";
+
+            // Extract column headers
+            var headers = [];
+            for (var i = 0; i < rows.length; i++) {
+                var cells = rows[i].split(',');
+                for (var j = 0; j < cells.length; j++) {
+                    var cellData = cells[j].split(':');
+                    if (headers.indexOf(cellData[0]) === -1) {
+                        headers.push(cellData[0]);
+                    }
+                }
+            }
+
+            // Add column headers to the table
+            var headerRow = table.insertRow(0);
+            for (var k = 0; k < headers.length; k++) {
+                var headerCell = headerRow.insertCell(k);
+                headerCell.innerHTML = headers[k];
+                headerCell.style.fontWeight = "bold";
+                headerCell.style.backgroundColor = "#4287f5";
+                headerCell.style.color = "#fff";
+            }
+
+            // Add data rows to the table
+            for (var l = 0; l < rows.length; l++) {
+                var rowData = rows[l].split(',');
+                var dataRow = table.insertRow(l + 1);
+
+                for (var m = 0; m < headers.length; m++) {
+                    var cell = dataRow.insertCell(m);
+                    var cellData = "";
+                    for (var n = 0; n < rowData.length; n++) {
+                        var cellValue = rowData[n].split(':');
+                        if (cellValue[0] === headers[m]) {
+                            cellData = cellValue[1];
+                            break;
+                        }
+                    }
+                    cell.innerHTML = cellData;
+                }
+            }
+
+            animateTable();
+        }
+
+        function animateTable() {
+            var table = document.getElementById("tableOutput");
+            table.classList.add("fade-in");
+
+            var rows = table.getElementsByTagName("tr");
+            var delay = 0;
+
+            for (var i = 0; i < rows.length; i++) {
+                rows[i].style.animationDelay = delay + "s";
+                rows[i].classList.add("slide-in");
+                delay += 0.1;
+            }
+        }
+
+        function toggleUpdateDetails() {
+            var updateDetails = document.getElementById("updateDetails");
+            var button = document.querySelector(".update-notice button");
+
+            if (updateDetails.style.display === "none") {
+                updateDetails.style.display = "block";
+                button.textContent = "Hide Details";
+            } else {
+                updateDetails.style.display = "none";
+                button.textContent = "Show Details";
+            }
+        }
+
+        function generateRandomExample() {
+            var randomText = "Name:Lio,Likes:Coding,Skills:JavaScript\nName:John,Likes:Reading,Skills:Writing\nName:Sarah,Likes:Drawing,Skills:Designing";
+            document.getElementById("textInput").value = randomText;
+        }
+
+        function showTutorial() {
+            alert("This is a simple tutorial on how to use Text to Table Converter:\n\n1. Enter your text data into the input area. Each row should represent a separate entry, and the columns should be separated by commas.\n\n2. Click the 'Convert' button to generate the table.\n\n3. The converted table will be displayed below with the column headers and corresponding data.\n\nEnjoy using Text to Table Converter!");
+        }
+    </script>
+</body>
+</html>
