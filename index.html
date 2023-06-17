@@ -3,382 +3,305 @@
 <head>
     <title>Text to Table Converter</title>
     <style>
-        /* CSS styles */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+        }
+
+        h1 {
+            text-align: center;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #4287f5;
-        }
-
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 10px;
-            margin-bottom: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
+            border-radius: 10px;
         }
 
-        button {
-            display: block;
-            margin: 0 auto;
-            padding: 10px 20px;
-            background-color: #4287f5;
+        .text-input {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border: 2px solid #0080ff;
+            border-radius: 10px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .button {
+            background-color: #0080ff;
             color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
+            padding: 10px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #366bb5;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            border-right: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #4287f5;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        th:last-child,
-        td:last-child {
-            border-right: none;
-        }
-
-        .sorted-asc::after {
-            content: " ▲";
-        }
-
-        .sorted-desc::after {
-            content: " ▼";
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-20px);
-            }
-            to {
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease;
-        }
-
-        .slide-in {
-            animation: slideIn 0.5s ease;
-        }
-
-        .credit {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            margin-top: 20px;
-        }
-
-        .credit a {
-            color: #4287f5;
-            text-decoration: none;
-        }
-
-        .update-notice {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .update-notice p {
-            font-size: 14px;
-            color: #4287f5;
-            margin-bottom: 10px;
-        }
-
-        .update-details {
-            margin-top: 10px;
-        }
-
-        .update-details h3 {
-            color: #4287f5;
-            margin-bottom: 5px;
-        }
-
-        .update-details ul {
-            margin-left: 20px;
-        }
-
-        .feeling-lucky {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .tutorial {
-            text-align: center;
-            margin-top: 20px;
+        .button:hover {
+            background-color: #0066cc;
         }
 
         .search-box {
-            text-align: center;
             margin-top: 20px;
         }
 
-        .search-box input[type="text"] {
+        .search-box input {
             width: 100%;
+            padding: 10px;
+            border: 2px solid #0080ff;
+            border-radius: 10px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #0080ff;
+        }
+
+        #tableContainer {
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #tableContainer.slide-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #updateNotice {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        #updateButton {
+            background-color: #0080ff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #updateButton:hover {
+            background-color: #0066cc;
+        }
+
+        #updateDetails {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            text-align: left;
+        }
+
+        #updateDetails ul {
+            padding-left: 20px;
+        }
+
+        #tableOutput {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #tableOutput th,
+        #tableOutput td {
             padding: 8px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+        }
+
+        .details-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            color: #0080ff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .details-button:hover {
+            color: #0066cc;
+        }
+
+        .how-to-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: transparent;
+            color: #0080ff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .how-to-button:hover {
+            color: #0066cc;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Text to Table Converter</h1>
-        <textarea id="textInput" placeholder="Enter your text data here..."></textarea>
-        <button onclick="convertTextToTable()">Convert</button>
+        <textarea id="textInput" class="text-input" placeholder="Enter text data..."></textarea>
+        <div class="button-container">
+            <button class="button" onclick="convertTextToTable()">Convert</button>
+            <button class="button" onclick="clearText()">Clear</button>
+            <button class="button" onclick="generateRandomText()">🎲</button>
+        </div>
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="Search...">
         </div>
-        <table id="tableOutput"></table>
-        <div class="credit">
-            <p>Word of Lio, Little Inventive One</p>
+        <button class="details-button" onclick="toggleDetails()">ℹ️</button>
+        <button class="how-to-button" onclick="toggleHowTo()">❓</button>
+        <div id="tableContainer">
+            <table id="tableOutput"></table>
         </div>
-        <div class="update-notice">
-            <p>Update Notice: TTD 1.0 Released!</p>
-            <button onclick="toggleUpdateDetails()">Show Details</button>
-            <div id="updateDetails" class="update-details" style="display: none;">
-                <h3>What is TTD?</h3>
-                <p>TTD (Text to Table) is a web application that allows you to convert text data into an interactive table format. It simplifies the process of converting textual information into a structured table, making it easier to analyze and manipulate data.</p>
-                <h3>Why TTD?</h3>
-                <p>TTD is designed to save time and effort by automating the conversion process. Instead of manually formatting text data into a table, TTD streamlines the task, reducing errors and enhancing productivity.</p>
-                <h3>Features and Updates in TTD 1.0:</h3>
+        <div id="updateNotice">
+            <button id="updateButton" onclick="toggleUpdateDetails()">Update</button>
+            <div id="updateDetails">
                 <ul>
-                    <li>Support for customizable column separation using the pattern "A:B".</li>
-                    <li>Smooth fade-in and slide-in animations for the generated table.</li>
-                    <li>Enhanced border styling for each cell.</li>
-                    <li>Visually appealing blue color theme.</li>
-                    <li>Added "I'm Feeling Lucky" button to generate a random example for quick testing.</li>
-                    <li>Added tutorial button for a brief tutorial on how to use Text to Table Converter.</li>
-                    <li>Sorting functionality for column headers.</li>
-                    <li>Automatic duplicate header detection and positioning.</li>
-                    <li>Automatic column width adjustment based on content length.</li>
-                    <li>Automatic filtering or search functionality to easily find specific data.</li>
+                    <li>Click the "Update" button to save changes.</li>
+                    <li>Press Enter key to submit the form.</li>
                 </ul>
             </div>
-        </div>
-        <div class="feeling-lucky">
-            <button onclick="generateRandomExample()">I'm Feeling Lucky</button>
-        </div>
-        <div class="tutorial">
-            <button onclick="showTutorial()">Tutorial</button>
         </div>
     </div>
 
     <script>
-        var tableData = [];
-        var ascending = false;
+        const tableBody = document.getElementById('tableOutput').createTBody();
+        const searchInput = document.getElementById('searchInput');
+        const updateDetails = document.getElementById('updateDetails');
+        const tableContainer = document.getElementById('tableContainer');
+        const detailsButton = document.querySelector('.details-button');
+        const howToButton = document.querySelector('.how-to-button');
+        const detailsContainer = document.createElement('div');
+        const howToContainer = document.createElement('div');
+
+        detailsContainer.style.display = 'none';
+        detailsContainer.innerHTML = `
+            <h2>What is Text to Table Converter?</h2>
+            <p>Text to Table Converter is a simple web tool that allows you to convert text data into a table format. It takes plain text input and generates an HTML table based on the data provided. This can be useful for quickly visualizing and organizing tabular data.</p>
+            <h2>Why use Text to Table Converter?</h2>
+            <p>Text to Table Converter saves you the hassle of manually formatting text data into a table. Instead of writing HTML markup for a table, you can simply paste or type the text data, click the "Convert" button, and the tool will generate the table for you. It's a time-saving tool for anyone working with data in text format.</p>
+            <h2>Where can Text to Table Converter be used?</h2>
+            <p>Text to Table Converter can be used in various scenarios, such as:</p>
+            <ul>
+                <li>Converting CSV or tab-separated data into a table.</li>
+                <li>Quickly creating an HTML table from plain text.</li>
+                <li>Visualizing and organizing data in a tabular format.</li>
+            </ul>
+        `;
+
+        howToContainer.style.display = 'none';
+        howToContainer.innerHTML = `
+            <h2>How to use Text to Table Converter?</h2>
+            <ol>
+                <li>Enter or paste your text data into the text input area.</li>
+                <li>Click the "Convert" button to generate the table.</li>
+                <li>Use the search box to filter the table data.</li>
+                <li>Click the "Clear" button to reset the text input and table.</li>
+                <li>Click the ℹ️ button for more details about the tool.</li>
+                <li>Click the ❓ button for instructions on how to use the tool.</li>
+            </ol>
+        `;
 
         function convertTextToTable() {
-            var textInput = document.getElementById("textInput").value;
-            var rows = textInput.split('\n');
+            const textInput = document.getElementById('textInput');
+            const lines = textInput.value.trim().split('\n');
+            tableBody.innerHTML = '';
 
-            var table = document.getElementById("tableOutput");
-            table.innerHTML = "";
-
-            // Extract column headers
-            var headers = [];
-            for (var i = 0; i < rows.length; i++) {
-                var cells = rows[i].split(',');
-
-                for (var j = 0; j < cells.length; j++) {
-                    var cellData = cells[j].split(':');
-                    var headerIndex = headers.findIndex(header => header === cellData[0]);
-
-                    if (headerIndex === -1) {
-                        headers.push(cellData[0]);
-                    }
+            for (let i = 0; i < lines.length; i++) {
+                const cells = lines[i].split(',').map(cell => cell.trim());
+                const row = tableBody.insertRow();
+                for (let j = 0; j < cells.length; j++) {
+                    const cell = row.insertCell();
+                    cell.textContent = cells[j];
                 }
             }
 
-            // Create table header
-            var headerRow = table.insertRow();
-            for (var k = 0; k < headers.length; k++) {
-                var headerCell = headerRow.insertCell();
-                headerCell.innerHTML = headers[k];
-                headerCell.setAttribute("onclick", "sortTable(" + k + ")");
-            }
-
-            // Create table body
-            for (var l = 0; l < rows.length; l++) {
-                var row = table.insertRow();
-                var cells = rows[l].split(',');
-
-                for (var m = 0; m < headers.length; m++) {
-                    var cell = row.insertCell();
-                    var cellData = cells.find(cell => cell.startsWith(headers[m] + ':'));
-
-                    if (cellData) {
-                        var value = cellData.split(':')[1];
-                        cell.innerHTML = value;
-                    }
-                }
-            }
-
-            // Adjust column widths based on content length
-            var maxWidths = [];
-            for (var n = 0; n < headers.length; n++) {
-                maxWidths.push(headers[n].length);
-            }
-
-            for (var o = 0; o < table.rows.length; o++) {
-                for (var p = 0; p < table.rows[o].cells.length; p++) {
-                    var content = table.rows[o].cells[p].innerHTML;
-                    if (content.length > maxWidths[p]) {
-                        maxWidths[p] = content.length;
-                    }
-                }
-            }
-
-            for (var q = 0; q < table.rows.length; q++) {
-                for (var r = 0; r < table.rows[q].cells.length; r++) {
-                    table.rows[q].cells[r].style.width = (maxWidths[r] * 10) + "px";
-                }
-            }
-
-            // Add search functionality
-            var searchInput = document.getElementById("searchInput");
-            searchInput.addEventListener("input", function () {
-                var searchText = this.value.toLowerCase();
-
-                for (var s = 1; s < table.rows.length; s++) {
-                    var rowVisible = false;
-
-                    for (var t = 0; t < table.rows[s].cells.length; t++) {
-                        var cellText = table.rows[s].cells[t].innerHTML.toLowerCase();
-
-                        if (cellText.includes(searchText)) {
-                            rowVisible = true;
-                            break;
-                        }
-                    }
-
-                    if (rowVisible) {
-                        table.rows[s].style.display = "";
-                    } else {
-                        table.rows[s].style.display = "none";
-                    }
-                }
-            });
-
-            // Display the table with animations
-            table.classList.add("fade-in");
-            table.classList.add("slide-in");
+            tableContainer.classList.add('slide-in');
         }
 
-        function sortTable(columnIndex) {
-            var table = document.getElementById("tableOutput");
-            var rows = table.rows;
-            var switching = true;
-            var shouldSwitch = false;
+        function clearText() {
+            const textInput = document.getElementById('textInput');
+            textInput.value = '';
+            tableContainer.classList.remove('slide-in');
+            searchInput.value = '';
+        }
 
-            while (switching) {
-                switching = false;
-
-                for (var i = 1; i < (rows.length - 1); i++) {
-                    var x = rows[i].getElementsByTagName("TD")[columnIndex];
-                    var y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
-
-                    if (ascending) {
-                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    } else {
-                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
-                    shouldSwitch = false;
-                }
-            }
-
-            // Update sorting indicator
-            var headerCells = table.getElementsByTagName("TH");
-            for (var j = 0; j < headerCells.length; j++) {
-                headerCells[j].classList.remove("sorted-asc");
-                headerCells[j].classList.remove("sorted-desc");
-            }
-
-            var clickedHeader = headerCells[columnIndex];
-            if (ascending) {
-                clickedHeader.classList.add("sorted-asc");
-            } else {
-                clickedHeader.classList.add("sorted-desc");
-            }
-
-            ascending = !ascending;
+        function generateRandomText() {
+            const textInput = document.getElementById('textInput');
+            textInput.value = `Product, Price, Quantity
+Apple, $1.00, 10
+Banana, $0.50, 20
+Orange, $0.75, 15`;
         }
 
         function toggleUpdateDetails() {
-            var updateDetails = document.getElementById("updateDetails");
-            if (updateDetails.style.display === "none") {
-                updateDetails.style.display = "block";
+            updateDetails.style.display = updateDetails.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleDetails() {
+            if (detailsContainer.style.display === 'none') {
+                detailsContainer.style.display = 'block';
+                howToContainer.style.display = 'none';
             } else {
-                updateDetails.style.display = "none";
+                detailsContainer.style.display = 'none';
             }
         }
 
-        function generateRandomExample() {
-            var randomData = "Name:John,Age:25,Location:New York\nName:Sarah,Age:30,Location:London\nName:Michael,Age:35,Location:Paris";
-            document.getElementById("textInput").value = randomData;
-            convertTextToTable();
+        function toggleHowTo() {
+            if (howToContainer.style.display === 'none') {
+                howToContainer.style.display = 'block';
+                detailsContainer.style.display = 'none';
+            } else {
+                howToContainer.style.display = 'none';
+            }
         }
 
-        function showTutorial() {
-            alert("Here is a brief tutorial on how to use Text to Table Converter:\n\n1. Enter your text data into the input box. Each row of data should be on a new line, and columns should be separated by commas.\n\n2. Click the 'Convert' button to generate a table based on the entered text data.\n\n3. You can click on the column headers to sort the table in ascending or descending order based on that column.\n\n4. Use the search box to filter the table and find specific data.\n\nEnjoy using Text to Table Converter!");
-        }
+        searchInput.addEventListener('input', function () {
+            const filter = searchInput.value.toLowerCase();
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let displayStyle = '';
+
+                for (let j = 0; j < cells.length; j++) {
+                    const cellText = cells[j].textContent || cells[j].innerText;
+                    if (cellText.toLowerCase().indexOf(filter) > -1) {
+                        displayStyle = '';
+                        break;
+                    } else {
+                        displayStyle = 'none';
+                    }
+                }
+
+                rows[i].style.display = displayStyle;
+            }
+        });
+
+        document.body.appendChild(detailsContainer);
+        document.body.appendChild(howToContainer);
     </script>
 </body>
 </html>
